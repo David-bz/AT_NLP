@@ -395,11 +395,11 @@ class MultiheadAttention(nn.Module):
             ):
                 # attn[list(range(self.mask_details['head'], attn.size(0), bsz))] = 0.
                 print(attn.size())
-                print(torch.nonzero(attn))
+                print(torch.count_nonzero(attn))
                 attn[list(range(self.mask_details['head'] * bsz, self.mask_details['head'] * bsz + bsz))] = 0.
                 print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ")
                 print(attn.size())
-                print(torch.nonzero(attn))
+                print(torch.count_nonzero(attn))
                 print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ")
         if self.onnx_trace and attn.size(1) == 1:
             # when ONNX tracing a single decoder step (sequence length == 1)
