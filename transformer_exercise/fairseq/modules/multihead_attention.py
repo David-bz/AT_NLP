@@ -394,6 +394,7 @@ class MultiheadAttention(nn.Module):
                 and self.mask_details['layer_type'] == current_type
             ):
                 # attn[list(range(self.mask_details['head'], attn.size(0), bsz))] = 0.
+                assert False, len(list(range(self.mask_details['head'] * bsz, self.mask_details['head'] * bsz + bsz)))
                 attn[list(range(self.mask_details['head'] * bsz, self.mask_details['head'] * bsz + bsz))] = 0.
         if self.onnx_trace and attn.size(1) == 1:
             # when ONNX tracing a single decoder step (sequence length == 1)
