@@ -391,7 +391,7 @@ class MultiheadAttention(nn.Module):
         if (
                 self.mask_details is not None
                 and self.mask_details['layer'] == self.layer_type_id[1]
-                and self.mask_details['type'] == current_type
+                and self.mask_details['layer_type'] == current_type
             ):
                 attn[list(range(self.mask_details['head'], attn.size(0), bsz))] = 0.
         if self.onnx_trace and attn.size(1) == 1:
