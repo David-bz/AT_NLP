@@ -106,7 +106,6 @@ class TransformerModel(FairseqEncoderDecoderModel):
 
     def __init__(self, args, encoder, decoder):
         super().__init__(encoder, decoder)
-        assert (False)
         self.args = args
         self.supports_align_args = True
 
@@ -318,7 +317,9 @@ class TransformerModel(FairseqEncoderDecoderModel):
         Copied from the base class, but without ``**kwargs``,
         which are not supported by TorchScript.
         """
+
         print("@@@@Running Encoder@@@@")
+        assert (False)
         encoder_out = self.encoder(
             src_tokens, src_lengths=src_lengths, return_all_hiddens=return_all_hiddens
         )
