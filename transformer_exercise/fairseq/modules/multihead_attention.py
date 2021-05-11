@@ -37,7 +37,7 @@ class MultiheadAttention(nn.Module):
         encoder_decoder_attention=False,
         q_noise=0.0,
         qn_block_size=8,
-        layer_to_mask=-1, # TODO: change
+        mask_details=None, # TODO: change
         layer_type_id=("", -1)
     ):
         super().__init__()
@@ -92,7 +92,7 @@ class MultiheadAttention(nn.Module):
 
         self.enable_fairseq_version = True
 
-        self.layer_to_mask=layer_to_mask # TODO: change
+        self.mask_details=mask_details # TODO: change
         self.layer_type_id=layer_type_id
 
     def prepare_for_onnx_export_(self):
@@ -148,8 +148,7 @@ class MultiheadAttention(nn.Module):
                 weights for each head. Implies *need_weights*. Default:
                 return the average attention weights over all heads.
         """
-        layer_type = "self_attn" if self.self_attention and not self.encoder_decoder_attention else "enc-dec"
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$$$$$$$ layer_to_mask: {} layer_id: {} type: {}".format(self.layer_to_mask, self.layer_type_id[1], layer_type))
+        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$$$$$$$ ")
         if need_head_weights:
             need_weights = True
 
@@ -388,6 +387,13 @@ class MultiheadAttention(nn.Module):
         print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS tgt_len: {}".format(tgt_len))
         print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS atten_0: {}".format(attn.size()))
         assert list(attn.size()) == [bsz * self.num_heads, tgt_len, self.head_dim]
+        current_type = "enc-enc" if self.layer_type_id[0] == "enc" else "dec-dec" if self.self_attention else "enc-dec"
+        if (
+                self.mask_details is not None
+                and self.mask_details['layer'] == self.layer_type_id[1]
+                and self.mask_details['type'] == current_type
+            ):
+                attn[list(range(self.mask_details['head'], attn.size(0), bsz))] = 0.
         if self.onnx_trace and attn.size(1) == 1:
             # when ONNX tracing a single decoder step (sequence length == 1)
             # the transpose is a no-op copy before view, thus unnecessary

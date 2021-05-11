@@ -66,6 +66,14 @@ class TransformerEncoderLayer(nn.Module):
         )
 
         self.final_layer_norm = LayerNorm(self.embed_dim)
+        self.mask_details = None
+        if args.mask_layer > -1:
+            assert args.mask_head > -1 and len(args.mask_layer_type) > 0
+            self.mask_details = {
+                'layer' : args.mask_layer,
+                'head': args.mask_head,
+                'layer_type': args.mask_layer_type
+            }
 
     def build_fc1(self, input_dim, output_dim, q_noise, qn_block_size):
         return quant_noise(
@@ -85,7 +93,7 @@ class TransformerEncoderLayer(nn.Module):
             self_attention=True,
             q_noise=self.quant_noise,
             qn_block_size=self.quant_noise_block_size,
-            layer_to_mask=args.mask_layer,
+            mask_details=self.mask_details,
             layer_type_id=("enc", self.layer_id),
         )
 
@@ -260,6 +268,7 @@ class TransformerDecoderLayer(nn.Module):
             self_attention=not getattr(args, "cross_self_attention", False),
             q_noise=self.quant_noise,
             qn_block_size=self.quant_noise_block_size,
+            mask_details = self.mask_details,
             layer_type_id=("dec", self.layer_id),
         )
 
@@ -273,6 +282,7 @@ class TransformerDecoderLayer(nn.Module):
             encoder_decoder_attention=True,
             q_noise=self.quant_noise,
             qn_block_size=self.quant_noise_block_size,
+            mask_details=self.mask_details,
             layer_type_id=("dec", self.layer_id),
         )
 
