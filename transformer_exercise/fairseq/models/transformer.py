@@ -317,13 +317,9 @@ class TransformerModel(FairseqEncoderDecoderModel):
         Copied from the base class, but without ``**kwargs``,
         which are not supported by TorchScript.
         """
-
-        print("@@@@Running Encoder@@@@")
-        assert (False)
         encoder_out = self.encoder(
             src_tokens, src_lengths=src_lengths, return_all_hiddens=return_all_hiddens
         )
-        print("@@@@Finished Encoder, Running Decoder@@@@")
         decoder_out = self.decoder(
             prev_output_tokens,
             encoder_out=encoder_out,
@@ -333,7 +329,6 @@ class TransformerModel(FairseqEncoderDecoderModel):
             src_lengths=src_lengths,
             return_all_hiddens=return_all_hiddens,
         )
-        print("@@@@Finished Decoder@@@@")
         return decoder_out
 
     # Since get_normalized_probs is in the Fairseq Model which is not scriptable,
@@ -537,6 +532,7 @@ class TransformerEncoder(FairseqEncoder):
             encoder_states.append(x)
 
         # encoder layers
+        assert False, "encoder"
         for layer in self.layers:
             x = layer(
                 x, encoder_padding_mask=encoder_padding_mask if has_pads else None
