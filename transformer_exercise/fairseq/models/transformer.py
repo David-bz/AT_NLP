@@ -318,6 +318,7 @@ class TransformerModel(FairseqEncoderDecoderModel):
         which are not supported by TorchScript.
         """
         print("@@@@Running Encoder@@@@")
+        a
         encoder_out = self.encoder(
             src_tokens, src_lengths=src_lengths, return_all_hiddens=return_all_hiddens
         )
