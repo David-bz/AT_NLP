@@ -380,13 +380,13 @@ class MultiheadAttention(nn.Module):
 
         assert v is not None
         attn = torch.bmm(attn_probs, v)
-        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS size attn probs: {}".format(attn_probs.size()))
-        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS size v: {}".format(v.size()))
-        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS num heads: {}".format(self.num_heads))
-        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS head dim: {}".format(self.head_dim))
-        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS tgt_len: {}".format(tgt_len))
-        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS atten_0: {}".format(attn.size()))
-        assert list(attn.size()) == [bsz * self.num_heads, tgt_len, self.head_dim]
+        # print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS size attn probs: {}".format(attn_probs.size()))
+        # print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS size v: {}".format(v.size()))
+        # print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS num heads: {}".format(self.num_heads))
+        # print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS head dim: {}".format(self.head_dim))
+        # print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS tgt_len: {}".format(tgt_len))
+        # print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS atten_0: {}".format(attn.size()))
+        # assert list(attn.size()) == [bsz * self.num_heads, tgt_len, self.head_dim]
         current_type = "enc-enc" if self.layer_type_id[0] == "enc" else "dec-dec" if self.self_attention else "enc-dec"
         if (
                 self.mask_details is not None
