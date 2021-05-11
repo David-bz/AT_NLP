@@ -33,6 +33,14 @@ class TransformerEncoderLayer(nn.Module):
         super().__init__()
         self.args = args
         self.layer_id = layer_id
+        self.mask_details = None
+        if args.mask_layer > -1:
+            assert args.mask_head > -1 and len(args.mask_layer_type) > 0
+            self.mask_details = {
+                'layer' : args.mask_layer,
+                'head': args.mask_head,
+                'layer_type': args.mask_layer_type
+            }
         self.embed_dim = args.encoder_embed_dim
         self.quant_noise = getattr(args, 'quant_noise_pq', 0)
         self.quant_noise_block_size = getattr(args, 'quant_noise_pq_block_size', 8) or 8
@@ -66,14 +74,6 @@ class TransformerEncoderLayer(nn.Module):
         )
 
         self.final_layer_norm = LayerNorm(self.embed_dim)
-        self.mask_details = None
-        if args.mask_layer > -1:
-            assert args.mask_head > -1 and len(args.mask_layer_type) > 0
-            self.mask_details = {
-                'layer' : args.mask_layer,
-                'head': args.mask_head,
-                'layer_type': args.mask_layer_type
-            }
 
     def build_fc1(self, input_dim, output_dim, q_noise, qn_block_size):
         return quant_noise(
@@ -189,6 +189,14 @@ class TransformerDecoderLayer(nn.Module):
     ):
         super().__init__()
         self.layer_id=layer_id
+        self.mask_details = None
+        if args.mask_layer > -1:
+            assert args.mask_head > -1 and len(args.mask_layer_type) > 0
+            self.mask_details = {
+                'layer' : args.mask_layer,
+                'head': args.mask_head,
+                'layer_type': args.mask_layer_type
+            }
         self.embed_dim = args.decoder_embed_dim
         self.dropout_module = FairseqDropout(
             args.dropout, module_name=self.__class__.__name__
@@ -247,7 +255,6 @@ class TransformerDecoderLayer(nn.Module):
 
         self.final_layer_norm = LayerNorm(self.embed_dim, export=export)
         self.need_attn = True
-
         self.onnx_trace = False
 
     def build_fc1(self, input_dim, output_dim, q_noise, qn_block_size):
