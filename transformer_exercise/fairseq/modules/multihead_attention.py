@@ -394,8 +394,13 @@ class MultiheadAttention(nn.Module):
                 and self.mask_details['layer_type'] == current_type
             ):
                 # attn[list(range(self.mask_details['head'], attn.size(0), bsz))] = 0.
-                assert False, len(list(range(self.mask_details['head'] * bsz, self.mask_details['head'] * bsz + bsz)))
+                print(attn.size())
+                print(torch.nonzero(attn))
                 attn[list(range(self.mask_details['head'] * bsz, self.mask_details['head'] * bsz + bsz))] = 0.
+                print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ ")
+                print(attn.size())
+                print(torch.nonzero(attn))
+                print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ")
         if self.onnx_trace and attn.size(1) == 1:
             # when ONNX tracing a single decoder step (sequence length == 1)
             # the transpose is a no-op copy before view, thus unnecessary
