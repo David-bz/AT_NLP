@@ -37,7 +37,8 @@ class MultiheadAttention(nn.Module):
         encoder_decoder_attention=False,
         q_noise=0.0,
         qn_block_size=8,
-        layer_to_mask=-2, # TODO: change
+        layer_to_mask=-1, # TODO: change
+        layer_id=-1
     ):
         super().__init__()
         self.embed_dim = embed_dim
@@ -92,6 +93,7 @@ class MultiheadAttention(nn.Module):
         self.enable_fairseq_version = True
 
         self.layer_to_mask=layer_to_mask # TODO: change
+        self.layer_id=layer_id
 
     def prepare_for_onnx_export_(self):
         self.onnx_trace = True
@@ -146,8 +148,8 @@ class MultiheadAttention(nn.Module):
                 weights for each head. Implies *need_weights*. Default:
                 return the average attention weights over all heads.
         """
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$$$$$$$$ {}".format(self.layer_to_mask))
-        assert(self.layer_to_mask >= -1)
+        layer_type = "self_attn" if self.self_attention and not self.encoder_decoder_attention else "enc-dec"
+        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$$$$$$$ layer_to_mask: {} layer_id: {} type: {}".format(self.layer_to_mask, self.layer_id, layer_type))
         if need_head_weights:
             need_weights = True
 

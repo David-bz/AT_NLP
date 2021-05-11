@@ -29,7 +29,7 @@ class TransformerEncoderLayer(nn.Module):
         args (argparse.Namespace): parsed command-line arguments
     """
 
-    def __init__(self, args):
+    def __init__(self, args, index=-1):
         super().__init__()
         self.args = args
         self.embed_dim = args.encoder_embed_dim
@@ -65,6 +65,7 @@ class TransformerEncoderLayer(nn.Module):
         )
 
         self.final_layer_norm = LayerNorm(self.embed_dim)
+        self.layer_id = index
 
     def build_fc1(self, input_dim, output_dim, q_noise, qn_block_size):
         return quant_noise(
@@ -85,6 +86,7 @@ class TransformerEncoderLayer(nn.Module):
             q_noise=self.quant_noise,
             qn_block_size=self.quant_noise_block_size,
             layer_to_mask=args.mask_layer,
+            layer_id=self.layer_id,
         )
 
     def residual_connection(self, x, residual):
