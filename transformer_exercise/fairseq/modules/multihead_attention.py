@@ -167,14 +167,14 @@ class MultiheadAttention(nn.Module):
                 assert src_len, bsz == value.shape[:2]
 
         if (
-            not self.enable_fairseq_version
-            and not self.onnx_trace
-            and not is_tpu  # don't use PyTorch version on TPUs
-            and incremental_state is None
-            and not static_kv
-            # A workaround for quantization to work. Otherwise JIT compilation
-            # treats bias in linear module as method.
-            and not torch.jit.is_scripting()
+                not self.enable_fairseq_version
+                and not self.onnx_trace
+                and not is_tpu  # don't use PyTorch version on TPUs
+                and incremental_state is None
+                and not static_kv
+                # A workaround for quantization to work. Otherwise JIT compilation
+                # treats bias in linear module as method.
+                and not torch.jit.is_scripting()
         ):
             assert key is not None and value is not None
             return F.multi_head_attention_forward(
@@ -199,7 +199,7 @@ class MultiheadAttention(nn.Module):
                 q_proj_weight=self.q_proj.weight,
                 k_proj_weight=self.k_proj.weight,
                 v_proj_weight=self.v_proj.weight,
-            )
+                )
 
         if incremental_state is not None:
             saved_state = self._get_input_buffer(incremental_state)
@@ -252,20 +252,20 @@ class MultiheadAttention(nn.Module):
 
         q = (
             q.contiguous()
-            .view(tgt_len, bsz * self.num_heads, self.head_dim)
-            .transpose(0, 1)
+                .view(tgt_len, bsz * self.num_heads, self.head_dim)
+                .transpose(0, 1)
         )
         if k is not None:
             k = (
                 k.contiguous()
-                .view(-1, bsz * self.num_heads, self.head_dim)
-                .transpose(0, 1)
+                    .view(-1, bsz * self.num_heads, self.head_dim)
+                    .transpose(0, 1)
             )
         if v is not None:
             v = (
                 v.contiguous()
-                .view(-1, bsz * self.num_heads, self.head_dim)
-                .transpose(0, 1)
+                    .view(-1, bsz * self.num_heads, self.head_dim)
+                    .transpose(0, 1)
             )
 
         if saved_state is not None:
@@ -383,6 +383,9 @@ class MultiheadAttention(nn.Module):
         attn = torch.bmm(attn_probs, v)
         print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS size attn probs: {}".format(attn_probs.size()))
         print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS size v: {}".format(v.size()))
+        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS num heads: {}".format(self.num_heads))
+        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS head dim: {}".format(self.head_dim))
+        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS tgt_len: {}".format(tgt_len))
         assert list(attn.size()) == [bsz * self.num_heads, tgt_len, self.head_dim]
         if self.onnx_trace and attn.size(1) == 1:
             # when ONNX tracing a single decoder step (sequence length == 1)
