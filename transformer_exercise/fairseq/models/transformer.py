@@ -940,7 +940,6 @@ class TransformerDecoder(FairseqIncrementalDecoder):
         # decoder layers
         attn: Optional[Tensor] = None
         inner_states: List[Optional[Tensor]] = [x]
-        print( " %%%%%%%%%% ttttttttttttttttttttttttttt {} %%%%%%%".format(len(self.layers)))
         for idx, layer in enumerate(self.layers):
             if incremental_state is None and not full_context_alignment:
                 self_attn_mask = self.buffered_future_mask(x)
@@ -973,10 +972,8 @@ class TransformerDecoder(FairseqIncrementalDecoder):
 
         # T x B x C -> B x T x C
         x = x.transpose(0, 1)
-        print( "dddddddddddddddddddddddddddddddddddddddddddddd")
         if self.project_out_dim is not None:
             x = self.project_out_dim(x)
-        print("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
         return x, {"attn": [attn], "inner_states": inner_states}
 
     def output_layer(self, features):
