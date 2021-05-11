@@ -404,7 +404,7 @@ class TransformerEncoder(FairseqEncoder):
         else:
             self.layers = nn.ModuleList([])
         self.layers.extend(
-            [self.build_encoder_layer(args, i) for i in range(args.encoder_layers)]
+            [self.build_encoder_layer(args, layer_id=i) for i in range(args.encoder_layers)]
         )
         self.num_layers = len(self.layers)
 
@@ -413,8 +413,8 @@ class TransformerEncoder(FairseqEncoder):
         else:
             self.layer_norm = None
 
-    def build_encoder_layer(self, args, index=-1):
-        layer = TransformerEncoderLayer(args, index)
+    def build_encoder_layer(self, args, layer_id=-1):
+        layer = TransformerEncoderLayer(args, layer_id=layer_id)
         checkpoint = getattr(args, "checkpoint_activations", False)
         if checkpoint:
             offload_to_cpu = getattr(args, "offload_activations", False)
@@ -776,7 +776,7 @@ class TransformerDecoder(FairseqIncrementalDecoder):
             self.layers.insert(((i+1) * args.decoder_layers) // (num_base_layers + 1), BaseLayer(args))
 
 
-    def build_decoder_layer(self, args, no_encoder_attn=False, layer_id=-2):#TODO: change
+    def build_decoder_layer(self, args, no_encoder_attn=False, layer_id=-1):#TODO: change
         layer = TransformerDecoderLayer(args, no_encoder_attn, layer_id=layer_id)
         checkpoint = getattr(args, "checkpoint_activations", False)
         if checkpoint:

@@ -38,7 +38,7 @@ class MultiheadAttention(nn.Module):
         q_noise=0.0,
         qn_block_size=8,
         layer_to_mask=-1, # TODO: change
-        layer_id=-1
+        layer_type_id=("", -1)
     ):
         super().__init__()
         self.embed_dim = embed_dim
@@ -93,7 +93,7 @@ class MultiheadAttention(nn.Module):
         self.enable_fairseq_version = True
 
         self.layer_to_mask=layer_to_mask # TODO: change
-        self.layer_id=layer_id
+        self.layer_type_id=layer_type_id
 
     def prepare_for_onnx_export_(self):
         self.onnx_trace = True
@@ -149,7 +149,7 @@ class MultiheadAttention(nn.Module):
                 return the average attention weights over all heads.
         """
         layer_type = "self_attn" if self.self_attention and not self.encoder_decoder_attention else "enc-dec"
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$$$$$$$ layer_to_mask: {} layer_id: {} type: {}".format(self.layer_to_mask, self.layer_id, layer_type))
+        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@$$$$$$$$$$$$$$$$$$$$$$$$$$ layer_to_mask: {} layer_id: {} type: {}".format(self.layer_to_mask, self.layer_type_id[1], layer_type))
         if need_head_weights:
             need_weights = True
 
@@ -343,7 +343,13 @@ class MultiheadAttention(nn.Module):
         attn_weights = self.apply_sparse_mask(attn_weights, tgt_len, src_len, bsz)
 
         assert list(attn_weights.size()) == [bsz * self.num_heads, tgt_len, src_len]
-
+        # if not self.is_training:
+        #     if layer_type == "enc-enc":
+        #         ...
+        #     elif layer_type == "end-dec"
+        #         ...
+        #     else:
+        #         ...
         if attn_mask is not None:
             attn_mask = attn_mask.unsqueeze(0)
             if self.onnx_trace:
@@ -375,6 +381,8 @@ class MultiheadAttention(nn.Module):
 
         assert v is not None
         attn = torch.bmm(attn_probs, v)
+        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS size attn probs: {}".format(attn_probs.size()))
+        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS size v: {}".format(v.size()))
         assert list(attn.size()) == [bsz * self.num_heads, tgt_len, self.head_dim]
         if self.onnx_trace and attn.size(1) == 1:
             # when ONNX tracing a single decoder step (sequence length == 1)

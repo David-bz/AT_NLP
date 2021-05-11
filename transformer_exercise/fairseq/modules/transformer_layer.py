@@ -29,10 +29,10 @@ class TransformerEncoderLayer(nn.Module):
         args (argparse.Namespace): parsed command-line arguments
     """
 
-    def __init__(self, args, index=-1):
+    def __init__(self, args, layer_id=-1):
         super().__init__()
         self.args = args
-        self.layer_id = index
+        self.layer_id = layer_id
         self.embed_dim = args.encoder_embed_dim
         self.quant_noise = getattr(args, 'quant_noise_pq', 0)
         self.quant_noise_block_size = getattr(args, 'quant_noise_pq_block_size', 8) or 8
@@ -86,7 +86,7 @@ class TransformerEncoderLayer(nn.Module):
             q_noise=self.quant_noise,
             qn_block_size=self.quant_noise_block_size,
             layer_to_mask=args.mask_layer,
-            layer_id=self.layer_id,
+            layer_type_id=("enc", self.layer_id),
         )
 
     def residual_connection(self, x, residual):
@@ -177,7 +177,7 @@ class TransformerDecoderLayer(nn.Module):
     """
 
     def __init__(
-        self, args, no_encoder_attn=False, add_bias_kv=False, add_zero_attn=False, layer_id=-2
+        self, args, no_encoder_attn=False, add_bias_kv=False, add_zero_attn=False, layer_id=-1
     ):
         super().__init__()
         self.layer_id=layer_id
@@ -260,7 +260,7 @@ class TransformerDecoderLayer(nn.Module):
             self_attention=not getattr(args, "cross_self_attention", False),
             q_noise=self.quant_noise,
             qn_block_size=self.quant_noise_block_size,
-            layer_id=self.layer_id,
+            layer_type_id=("dec", self.layer_id),
         )
 
     def build_encoder_attention(self, embed_dim, args):
@@ -273,7 +273,7 @@ class TransformerDecoderLayer(nn.Module):
             encoder_decoder_attention=True,
             q_noise=self.quant_noise,
             qn_block_size=self.quant_noise_block_size,
-            layer_id=self.layer_id,
+            layer_type_id=("dec", self.layer_id),
         )
 
     def prepare_for_onnx_export_(self):
