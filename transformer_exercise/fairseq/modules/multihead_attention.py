@@ -386,6 +386,7 @@ class MultiheadAttention(nn.Module):
         print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS num heads: {}".format(self.num_heads))
         print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS head dim: {}".format(self.head_dim))
         print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS tgt_len: {}".format(tgt_len))
+        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS atten_0: {}".format(attn.size()))
         assert list(attn.size()) == [bsz * self.num_heads, tgt_len, self.head_dim]
         if self.onnx_trace and attn.size(1) == 1:
             # when ONNX tracing a single decoder step (sequence length == 1)
