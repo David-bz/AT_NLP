@@ -393,16 +393,17 @@ class MultiheadAttention(nn.Module):
                 and self.mask_details['layer'] == self.layer_type_id[1]
                 and self.mask_details['layer_type'] == current_type
             ):
-                attn[list(range(self.mask_details['head'], attn.size(0), bsz))] = 0.
+                # attn[list(range(self.mask_details['head'], attn.size(0), bsz))] = 0.
+                attn[list(range(self.mask_details['head'] * bsz, self.mask_details['head'] * bsz + bsz))] = 0.
         if self.onnx_trace and attn.size(1) == 1:
             # when ONNX tracing a single decoder step (sequence length == 1)
             # the transpose is a no-op copy before view, thus unnecessary
             attn = attn.contiguous().view(tgt_len, bsz, embed_dim)
         else:
             attn = attn.transpose(0, 1).contiguous().view(tgt_len, bsz, embed_dim)
-        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS atten_1: {}".format(attn.size()))
+        # print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS atten_1: {}".format(attn.size()))
         attn = self.out_proj(attn)
-        print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS atten_2: {}".format(attn.size()))
+        # print(" SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS atten_2: {}".format(attn.size()))
         attn_weights: Optional[Tensor] = None
         if need_weights:
             attn_weights = attn_weights_float.view(
