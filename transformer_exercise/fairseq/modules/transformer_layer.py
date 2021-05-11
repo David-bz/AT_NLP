@@ -32,6 +32,8 @@ class TransformerEncoderLayer(nn.Module):
     def __init__(self, args, index=-1):
         super().__init__()
         self.args = args
+        self.final_layer_norm = LayerNorm(self.embed_dim)
+        self.layer_id = index
         self.embed_dim = args.encoder_embed_dim
         self.quant_noise = getattr(args, 'quant_noise_pq', 0)
         self.quant_noise_block_size = getattr(args, 'quant_noise_pq_block_size', 8) or 8
@@ -63,9 +65,6 @@ class TransformerEncoderLayer(nn.Module):
             self.quant_noise,
             self.quant_noise_block_size,
         )
-
-        self.final_layer_norm = LayerNorm(self.embed_dim)
-        self.layer_id = index
 
     def build_fc1(self, input_dim, output_dim, q_noise, qn_block_size):
         return quant_noise(
