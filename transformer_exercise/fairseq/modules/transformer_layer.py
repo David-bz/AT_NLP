@@ -177,9 +177,10 @@ class TransformerDecoderLayer(nn.Module):
     """
 
     def __init__(
-        self, args, no_encoder_attn=False, add_bias_kv=False, add_zero_attn=False
+        self, args, no_encoder_attn=False, add_bias_kv=False, add_zero_attn=False, layer_id=-2
     ):
         super().__init__()
+        self.layer_id=layer_id
         self.embed_dim = args.decoder_embed_dim
         self.dropout_module = FairseqDropout(
             args.dropout, module_name=self.__class__.__name__
@@ -259,6 +260,7 @@ class TransformerDecoderLayer(nn.Module):
             self_attention=not getattr(args, "cross_self_attention", False),
             q_noise=self.quant_noise,
             qn_block_size=self.quant_noise_block_size,
+            layer_id=self.layer_id,
         )
 
     def build_encoder_attention(self, embed_dim, args):
@@ -271,6 +273,7 @@ class TransformerDecoderLayer(nn.Module):
             encoder_decoder_attention=True,
             q_noise=self.quant_noise,
             qn_block_size=self.quant_noise_block_size,
+            layer_id=self.layer_id,
         )
 
     def prepare_for_onnx_export_(self):
