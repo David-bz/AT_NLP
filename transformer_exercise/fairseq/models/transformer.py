@@ -403,9 +403,16 @@ class TransformerEncoder(FairseqEncoder):
             self.layers = LayerDropModuleList(p=self.encoder_layerdrop)
         else:
             self.layers = nn.ModuleList([])
+        actions = ['AF'] * args.encoder_layers
+        if args.enc_layer_configuration != "":
+            actions_str = args.enc_layer_configuration
+            assert len(actions_str) == 2 * args.encoder_layers , "Arguments don't match!"
+            args.encoder_layers *= 2
+            actions = args.enc_layer_configuration
         self.layers.extend(
-            [self.build_encoder_layer(args, layer_id=i) for i in range(args.encoder_layers)]
+            [self.build_encoder_layer(args, layer_id=i, action=actions[i]) for i in range(args.encoder_layers)]
         )
+
         self.num_layers = len(self.layers)
 
         if args.encoder_normalize_before:
@@ -413,8 +420,8 @@ class TransformerEncoder(FairseqEncoder):
         else:
             self.layer_norm = None
 
-    def build_encoder_layer(self, args, layer_id=-1):
-        layer = TransformerEncoderLayer(args, layer_id=layer_id)
+    def build_encoder_layer(self, args, layer_id=-1, action=""):
+        layer = TransformerEncoderLayer(args, layer_id=layer_id, action=action)
         checkpoint = getattr(args, "checkpoint_activations", False)
         if checkpoint:
             offload_to_cpu = getattr(args, "offload_activations", False)
