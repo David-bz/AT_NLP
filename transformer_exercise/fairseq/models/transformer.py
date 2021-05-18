@@ -406,6 +406,8 @@ class TransformerEncoder(FairseqEncoder):
         actions = ['AF'] * args.encoder_layers
         if args.enc_layer_configuration != "":
             actions_str = args.enc_layer_configuration
+            print(len(actions_str))
+            print(args.encoder_layers)
             assert len(actions_str) == 2 * args.encoder_layers , "Arguments don't match!"
             args.encoder_layers *= 2
             actions = args.enc_layer_configuration
