@@ -403,15 +403,9 @@ class TransformerEncoder(FairseqEncoder):
             self.layers = LayerDropModuleList(p=self.encoder_layerdrop)
         else:
             self.layers = nn.ModuleList([])
-        actions = ['AF'] * args.encoder_layers
-        if args.enc_layer_configuration != "":
-            actions = args.enc_layer_configuration
-            assert len(actions) == 2 * args.encoder_layers , "Arguments don't match!"
         self.layers.extend(
-            [self.build_encoder_layer(args, layer_id=i, action=actions[i]) for i in range(2 * args.encoder_layers)]
+            [self.build_encoder_layer(args) for i in range(args.encoder_layers)]
         )
-
-
         self.num_layers = len(self.layers)
 
         if args.encoder_normalize_before:
@@ -419,8 +413,8 @@ class TransformerEncoder(FairseqEncoder):
         else:
             self.layer_norm = None
 
-    def build_encoder_layer(self, args, layer_id=-1, action=""):
-        layer = TransformerEncoderLayer(args, layer_id=layer_id, action=action)
+    def build_encoder_layer(self, args):
+        layer = TransformerEncoderLayer(args)
         checkpoint = getattr(args, "checkpoint_activations", False)
         if checkpoint:
             offload_to_cpu = getattr(args, "offload_activations", False)
@@ -728,8 +722,8 @@ class TransformerDecoder(FairseqIncrementalDecoder):
             self.layers = nn.ModuleList([])
         self.layers.extend(
             [
-                self.build_decoder_layer(args, no_encoder_attn, layer_id=i)
-                for i in range(args.decoder_layers)
+                self.build_decoder_layer(args, no_encoder_attn)
+                for _ in range(args.decoder_layers)
             ]
         )
         self.num_layers = len(self.layers)
@@ -782,8 +776,8 @@ class TransformerDecoder(FairseqIncrementalDecoder):
             self.layers.insert(((i+1) * args.decoder_layers) // (num_base_layers + 1), BaseLayer(args))
 
 
-    def build_decoder_layer(self, args, no_encoder_attn=False, layer_id=-1):#TODO: change
-        layer = TransformerDecoderLayer(args, no_encoder_attn, layer_id=layer_id)
+    def build_decoder_layer(self, args, no_encoder_attn=False):
+        layer = TransformerDecoderLayer(args, no_encoder_attn)
         checkpoint = getattr(args, "checkpoint_activations", False)
         if checkpoint:
             offload_to_cpu = getattr(args, "offload_activations", False)
@@ -978,8 +972,10 @@ class TransformerDecoder(FairseqIncrementalDecoder):
 
         # T x B x C -> B x T x C
         x = x.transpose(0, 1)
+
         if self.project_out_dim is not None:
             x = self.project_out_dim(x)
+
         return x, {"attn": [attn], "inner_states": inner_states}
 
     def output_layer(self, features):
